@@ -1,0 +1,1765 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlookIPA 7 - Gerak dan Gaya (Tema Biru Laut)</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Nunito & Titan One (khas game Blooket) -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&family=Titan+One&display=swap" rel="stylesheet">
+    <!-- Font Awesome untuk Ikon -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- SheetJS (XLSX) untuk ekspor langsung ke file Excel (.xlsx) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <!-- Tone.js untuk efek suara ala game arcade -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #0284c7; /* Background Biru Laut Cerah Blooket */
+            background-image: radial-gradient(#0369a1 2.5px, transparent 2.5px), radial-gradient(#0369a1 2.5px, #0284c7 2.5px);
+            background-size: 40px 40px;
+            background-position: 0 0, 20px 20px;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        .font-blook {
+            font-family: 'Titan One', cursive;
+            letter-spacing: 1px;
+            text-shadow: 0 4px 0 rgba(0, 0, 0, 0.25);
+        }
+
+        /* Gaya Tombol 3D khas Blooket */
+        .btn-blook {
+            transition: all 0.1s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            top: 0;
+        }
+        .btn-blook:active {
+            top: 5px;
+            box-shadow: 0 1px 0 rgba(0,0,0,0.3) !important;
+        }
+
+        .btn-primary {
+            background-color: #9333ea;
+            box-shadow: 0 6px 0 #6b21a8;
+        }
+        .btn-primary:hover { background-color: #a855f7; }
+
+        .btn-green {
+            background-color: #26b947;
+            box-shadow: 0 6px 0 #1b8733;
+        }
+        .btn-green:hover { background-color: #2ecc52; }
+
+        .btn-amber {
+            background-color: #f59e0b;
+            box-shadow: 0 6px 0 #b45309;
+        }
+        .btn-amber:hover { background-color: #fbbf24; }
+
+        /* Pilihan Jawaban Blooket 4 Warna */
+        .opt-0 { background-color: #e53935; box-shadow: 0 6px 0 #ab201d; } /* Merah - Segitiga */
+        .opt-0:hover { background-color: #f44336; }
+
+        .opt-1 { background-color: #1e88e5; box-shadow: 0 6px 0 #125ea3; } /* Biru - Belah Ketupat */
+        .opt-1:hover { background-color: #2196f3; }
+
+        .opt-2 { background-color: #ffb300; box-shadow: 0 6px 0 #c28700; } /* Kuning - Lingkaran */
+        .opt-2:hover { background-color: #ffc107; }
+
+        .opt-3 { background-color: #43a047; box-shadow: 0 6px 0 #2b6e2e; } /* Hijau - Kotak */
+        .opt-3:hover { background-color: #4caf50; }
+
+        /* Kartu Putih Blooket */
+        .card-blook {
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 8px 0 rgba(12, 74, 110, 0.28);
+        }
+
+        /* Animasi Melayang */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-8px) rotate(3deg); }
+        }
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* Animasi Pop */
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop {
+            animation: popIn 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.3); border-radius: 10px; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between text-slate-800">
+
+    <!-- NAVBAR ATAS (NUANSA BIRU LAUT GELAP) -->
+    <header class="w-full px-4 py-3 flex justify-between items-center bg-[#0369a1]/90 backdrop-blur-sm border-b-4 border-[#075985] text-white z-20">
+        <div class="flex items-center gap-3 cursor-pointer" onclick="goHome()">
+            <div class="w-10 h-10 bg-sky-200 rounded-xl flex items-center justify-center text-slate-900 text-2xl shadow-md border-2 border-white">
+                🚀
+            </div>
+            <div>
+                <h1 class="font-blook text-xl sm:text-2xl tracking-wide leading-none">BlookIPA 7</h1>
+                <p class="text-[11px] font-bold text-sky-100">Disusun oleh: Siti Fatimah, S.Pd</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-2 sm:gap-3">
+            <!-- Tombol Suara -->
+            <button id="soundToggleBtn" onclick="toggleSound()" class="bg-white/20 hover:bg-white/30 p-2.5 rounded-xl text-white transition" title="Suara Efek">
+                <i id="soundIcon" class="fas fa-volume-up"></i>
+            </button>
+            <!-- Tombol Panel Guru -->
+            <button onclick="openTeacherModal()" class="btn-blook btn-amber text-white font-extrabold px-3 sm:px-4 py-2 rounded-xl text-sm flex items-center gap-2 border border-amber-200/40">
+                <i class="fas fa-chalkboard-teacher"></i>
+                <span class="hidden sm:inline">Panel Guru & Excel</span>
+                <span class="sm:hidden">Guru</span>
+                <span id="studentCountBadge" class="bg-red-600 text-white text-xs px-2 py-0.5 rounded-full font-black">0</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- KONTEN UTAMA -->
+    <main class="flex-grow flex items-center justify-center p-4">
+
+        <!-- 1. HALAMAN AWAL / LOBBY SISWA -->
+        <section id="lobbyScreen" class="w-full max-w-lg card-blook p-6 sm:p-8 text-center animate-pop">
+            <div class="inline-block bg-sky-100 text-sky-800 font-extrabold px-4 py-1 rounded-full text-xs uppercase tracking-wider mb-2">
+                IPA Kelas VII • 20 Soal Pilihan Ganda
+            </div>
+            <h2 class="font-blook text-3xl sm:text-4xl text-slate-800 mb-2" style="text-shadow: none;">
+                GERAK DAN GAYA
+            </h2>
+            <p class="text-slate-500 font-bold text-sm mb-6">
+                Pilih karakter Blook kamu, amati infografis gerak & ilustrasi Hukum Newton, lalu raih nilai tertinggi!
+            </p>
+
+            <!-- Pilih Karakter (Blook Avatar) -->
+            <div class="mb-5">
+                <label class="block text-left text-xs font-extrabold text-slate-500 uppercase mb-2">1. Pilih Karakter (Blook):</label>
+                <div id="avatarGrid" class="grid grid-cols-6 gap-2 bg-sky-50 p-3 rounded-2xl border-2 border-sky-200">
+                    <!-- Diisi oleh JS -->
+                </div>
+            </div>
+
+            <!-- Input Nama & Kelas -->
+            <div class="space-y-3 mb-6 text-left">
+                <div>
+                    <label class="block text-xs font-extrabold text-slate-500 uppercase mb-1">2. Nama Lengkap Siswa:</label>
+                    <input type="text" id="studentNameInput" placeholder="Contoh: Ahmad Dani" class="w-full px-4 py-3 rounded-xl border-2 border-slate-300 focus:border-sky-500 focus:outline-none font-bold text-slate-800 text-lg">
+                </div>
+                <div>
+                    <label class="block text-xs font-extrabold text-slate-500 uppercase mb-1">3. Kelas:</label>
+                    <select id="studentClassInput" class="w-full px-4 py-3 rounded-xl border-2 border-slate-300 focus:border-sky-500 focus:outline-none font-bold text-slate-800 bg-white">
+                        <option value="7A">Kelas 7A</option>
+                        <option value="7B">Kelas 7B</option>
+                        <option value="7C">Kelas 7C</option>
+                        <option value="7D">Kelas 7D</option>
+                        <option value="7E">Kelas 7E</option>
+                        <option value="7F">Kelas 7F</option>
+                        <option value="7G">Kelas 7G</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Notifikasi Error Inline -->
+            <div id="lobbyError" class="hidden bg-red-100 border-l-4 border-red-500 text-red-700 p-3 rounded-lg mb-4 text-sm font-bold text-left">
+                <i class="fas fa-exclamation-circle mr-1"></i> Silakan masukkan nama lengkap terlebih dahulu!
+            </div>
+
+            <button onclick="startGame()" class="w-full btn-blook btn-green text-white font-blook text-2xl py-4 rounded-2xl tracking-wider flex items-center justify-center gap-3">
+                <span>MULAI MAIN</span>
+                <i class="fas fa-play text-xl"></i>
+            </button>
+        </section>
+
+        <!-- 2. HALAMAN PERMAINAN KUIS (BLOOKET GAMEPLAY) -->
+        <section id="quizScreen" class="hidden w-full max-w-4xl flex flex-col gap-4 animate-pop">
+            <!-- Bar Status Atas Pemain -->
+            <div class="card-blook px-4 py-3 flex flex-wrap justify-between items-center gap-2 bg-slate-900 text-white border-b-4 border-slate-950" style="background: #1e293b;">
+                <div class="flex items-center gap-3">
+                    <div id="hudAvatar" class="text-3xl bg-white/10 w-12 h-12 rounded-xl flex items-center justify-center animate-float">🦊</div>
+                    <div>
+                        <div id="hudName" class="font-extrabold text-base sm:text-lg leading-tight">Nama Siswa</div>
+                        <div id="hudClass" class="text-xs font-bold text-sky-400">Kelas 7A</div>
+                    </div>
+                </div>
+
+                <!-- Nomor Soal & Progress -->
+                <div class="flex flex-col items-center">
+                    <span class="text-xs font-extrabold uppercase text-slate-400">Soal</span>
+                    <span class="font-blook text-xl sm:text-2xl text-white"><span id="qCurrent">1</span> / 20</span>
+                </div>
+
+                <!-- Streak & Emas / Poin -->
+                <div class="flex items-center gap-3 sm:gap-5">
+                    <div class="text-center">
+                        <span class="text-[10px] font-extrabold uppercase text-sky-400 block">Streak</span>
+                        <span class="font-blook text-lg sm:text-xl text-sky-400">🔥 <span id="hudStreak">0</span></span>
+                    </div>
+                    <div class="bg-amber-500/20 border-2 border-amber-400 px-3 py-1.5 rounded-xl flex items-center gap-2">
+                        <span class="text-xl">🪙</span>
+                        <div>
+                            <span class="text-[10px] font-extrabold uppercase text-amber-300 block leading-none">Skor / Emas</span>
+                            <span id="hudScore" class="font-blook text-lg sm:text-xl text-amber-400 leading-none">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Timer Bar -->
+            <div class="w-full bg-black/30 h-3 rounded-full overflow-hidden p-0.5">
+                <div id="timerBar" class="bg-sky-200 h-full rounded-full transition-all duration-1000 ease-linear" style="width: 100%;"></div>
+            </div>
+
+            <!-- Kartu Pertanyaan & Stimulus Infografis/Tabel/Gambar Real -->
+            <div class="card-blook p-5 sm:p-7 text-center relative">
+                <!-- Tag Indikator Kisi-Kisi -->
+                <div class="flex flex-wrap justify-between items-center gap-2 mb-3">
+                    <span id="qTopicTag" class="bg-sky-100 text-sky-800 text-xs font-extrabold px-3 py-1 rounded-full">
+                        Besaran pada Benda Bergerak
+                    </span>
+                    <span id="qLevelTag" class="bg-purple-100 text-purple-800 text-xs font-extrabold px-3 py-1 rounded-full">
+                        Level: C2 • Sedang
+                    </span>
+                </div>
+
+                <!-- Stimulus Visual (Infografis, Tabel Data Percobaan, Grafik, atau Ilustrasi Real) -->
+                <div id="qStimulusContainer" class="my-3 flex justify-center">
+                    <div id="qStimulusBox" class="w-full max-w-2xl bg-sky-50/70 border-2 border-sky-200 rounded-2xl p-3 sm:p-4 flex flex-col items-center justify-center shadow-inner overflow-x-auto">
+                        <!-- Stimulus HTML/SVG dirender dinamis -->
+                    </div>
+                </div>
+
+                <!-- Teks Pertanyaan -->
+                <h3 id="qText" class="text-base sm:text-xl font-extrabold text-slate-800 leading-snug mt-3">
+                    Memuat pertanyaan...
+                </h3>
+            </div>
+
+            <!-- 4 Tombol Pilihan Jawaban (Gaya Blooket 2x2 Grid) -->
+            <div id="optionsGrid" class="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+                <!-- Tombol A -->
+                <button onclick="selectAnswer(0)" class="btn-blook opt-0 text-white p-4 sm:p-5 rounded-2xl flex items-center gap-4 text-left min-h-[72px]">
+                    <div class="w-10 h-10 rounded-xl bg-black/20 flex items-center justify-center shrink-0 text-xl font-black">
+                        ▲
+                    </div>
+                    <span id="optText0" class="font-extrabold text-sm sm:text-base leading-tight">Pilihan A</span>
+                </button>
+
+                <!-- Tombol B -->
+                <button onclick="selectAnswer(1)" class="btn-blook opt-1 text-white p-4 sm:p-5 rounded-2xl flex items-center gap-4 text-left min-h-[72px]">
+                    <div class="w-10 h-10 rounded-xl bg-black/20 flex items-center justify-center shrink-0 text-xl font-black">
+                        ◆
+                    </div>
+                    <span id="optText1" class="font-extrabold text-sm sm:text-base leading-tight">Pilihan B</span>
+                </button>
+
+                <!-- Tombol C -->
+                <button onclick="selectAnswer(2)" class="btn-blook opt-2 text-white p-4 sm:p-5 rounded-2xl flex items-center gap-4 text-left min-h-[72px]">
+                    <div class="w-10 h-10 rounded-xl bg-black/20 flex items-center justify-center shrink-0 text-xl font-black">
+                        ●
+                    </div>
+                    <span id="optText2" class="font-extrabold text-sm sm:text-base leading-tight">Pilihan C</span>
+                </button>
+
+                <!-- Tombol D -->
+                <button onclick="selectAnswer(3)" class="btn-blook opt-3 text-white p-4 sm:p-5 rounded-2xl flex items-center gap-4 text-left min-h-[72px]">
+                    <div class="w-10 h-10 rounded-xl bg-black/20 flex items-center justify-center shrink-0 text-xl font-black">
+                        ■
+                    </div>
+                    <span id="optText3" class="font-extrabold text-sm sm:text-base leading-tight">Pilihan D</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- 3. OVERLAY FEEDBACK JAWABAN & MINI-REWARD PETI BLOOKET -->
+        <div id="feedbackOverlay" class="hidden fixed inset-0 z-40 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+            <div id="feedbackCard" class="w-full max-w-md rounded-3xl p-6 sm:p-8 text-center text-white shadow-2xl animate-pop border-4 border-white">
+                <div id="fbIcon" class="text-6xl mb-3">🎉</div>
+                <h2 id="fbTitle" class="font-blook text-3xl sm:text-4xl mb-1">BENAR!</h2>
+                <p id="fbPoints" class="font-extrabold text-xl text-amber-200 mb-4">+100 Emas</p>
+                
+                <!-- Penjelasan Singkat / Pembahasan Kisi-Kisi -->
+                <div class="bg-black/25 rounded-2xl p-4 text-sm font-bold text-white/95 mb-6 text-left">
+                    <span class="uppercase text-[11px] tracking-wider text-amber-300 block mb-1">💡 Pembahasan:</span>
+                    <p id="fbExplanation">Penjelasan jawaban tampil di sini.</p>
+                </div>
+
+                <!-- Pilihan Peti Bonus tiap kelipatan 4 soal benar -->
+                <div id="bonusChestArea" class="hidden mb-6">
+                    <p class="font-blook text-lg text-amber-300 mb-3">🎁 BONUS STREAK! PILIH SATU PETI:</p>
+                    <div class="grid grid-cols-3 gap-3">
+                        <button onclick="openChest(0)" class="chest-btn bg-amber-500 hover:bg-amber-400 p-4 rounded-2xl border-2 border-white text-3xl shadow-lg transition transform hover:scale-105">🧰</button>
+                        <button onclick="openChest(1)" class="chest-btn bg-amber-500 hover:bg-amber-400 p-4 rounded-2xl border-2 border-white text-3xl shadow-lg transition transform hover:scale-105">🧰</button>
+                        <button onclick="openChest(2)" class="chest-btn bg-amber-500 hover:bg-amber-400 p-4 rounded-2xl border-2 border-white text-3xl shadow-lg transition transform hover:scale-105">🧰</button>
+                    </div>
+                    <p id="chestResultText" class="hidden mt-3 font-black text-amber-200 text-base"></p>
+                </div>
+
+                <button id="nextQuestionBtn" onclick="nextQuestion()" class="w-full bg-white text-slate-900 hover:bg-slate-100 font-blook text-xl py-3.5 rounded-2xl shadow-lg transition">
+                    LANJUT SOAL BERIKUTNYA ➔
+                </button>
+            </div>
+        </div>
+
+        <!-- 4. HALAMAN HASIL AKHIR SISWA (HANYA MELIHAT NILAI, TANPA TOMBOL UNDUH EXCEL) -->
+        <section id="resultScreen" class="hidden w-full max-w-2xl card-blook p-6 sm:p-8 text-center animate-pop">
+            <div class="inline-block bg-sky-100 text-sky-800 font-extrabold px-4 py-1 rounded-full text-xs uppercase mb-2">
+                Kuis Selesai! Nilai Otomatis Tersimpan
+            </div>
+            <div id="resAvatar" class="text-6xl my-2 animate-float">🦊</div>
+            <h2 id="resName" class="font-blook text-3xl text-slate-800" style="text-shadow:none;">Nama Siswa</h2>
+            <p id="resClass" class="text-slate-500 font-extrabold mb-6">Kelas 7A</p>
+
+            <!-- Kartu Ringkasan Nilai -->
+            <div class="grid grid-cols-3 gap-3 sm:gap-4 mb-6">
+                <div class="bg-sky-100 border-2 border-sky-300 p-4 rounded-2xl">
+                    <span class="text-xs font-extrabold text-sky-700 uppercase block">Nilai Akhir</span>
+                    <span id="resFinalGrade" class="font-blook text-3xl sm:text-4xl text-sky-900" style="text-shadow:none;">100</span>
+                    <span class="text-[11px] font-bold text-sky-600 block">Skala 0 - 100</span>
+                </div>
+                <div class="bg-green-100 border-2 border-green-300 p-4 rounded-2xl">
+                    <span class="text-xs font-extrabold text-green-700 uppercase block">Jawaban Benar</span>
+                    <span id="resCorrectCount" class="font-blook text-3xl sm:text-4xl text-green-800" style="text-shadow:none;">20/20</span>
+                    <span id="resAccuracy" class="text-[11px] font-bold text-green-600 block">Akurasi 100%</span>
+                </div>
+                <div class="bg-amber-100 border-2 border-amber-300 p-4 rounded-2xl">
+                    <span class="text-xs font-extrabold text-amber-700 uppercase block">Total Emas</span>
+                    <span id="resGold" class="font-blook text-3xl sm:text-4xl text-amber-700" style="text-shadow:none;">2450</span>
+                    <span class="text-[11px] font-bold text-amber-600 block">Poin Blooket</span>
+                </div>
+            </div>
+
+            <!-- Review Singkat Jawaban Siswa -->
+            <div class="text-left mb-6">
+                <h3 class="font-extrabold text-slate-700 text-sm uppercase mb-2">Rekap Per Nomor Soal:</h3>
+                <div id="resBreakdown" class="grid grid-cols-5 sm:grid-cols-10 gap-2 bg-slate-100 p-3 rounded-2xl border border-slate-200">
+                    <!-- Badge nomor 1-20 -->
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3">
+                <button onclick="goHome()" class="w-full btn-blook btn-primary text-white font-blook text-lg py-3.5 rounded-2xl">
+                    <i class="fas fa-redo mr-2"></i> MAIN LAGI / SISWA BARU
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 5. MODAL PIN GURU & PANEL REKAP NILAI EXCEL -->
+    <div id="teacherModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
+        <!-- LAYAR KUNCI PIN GURU -->
+        <div id="teacherPinBox" class="bg-white w-full max-w-sm rounded-3xl shadow-2xl p-6 text-center animate-pop">
+            <div class="w-14 h-14 bg-sky-100 text-sky-600 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-3">
+                🔒
+            </div>
+            <h3 class="font-blook text-2xl text-slate-800 mb-1" style="text-shadow:none;">KHUSUS GURU</h3>
+            <p class="text-xs font-bold text-slate-500 mb-4">
+                Masukkan PIN Guru untuk melihat rekap nilai kelas dan mengunduh file Excel.
+            </p>
+            <input type="password" id="teacherPinInput" maxlength="10" placeholder="Masukkan PIN Guru" onkeydown="if(event.key==='Enter') verifyTeacherPin()" class="w-full px-4 py-3 rounded-xl border-2 border-slate-300 focus:border-sky-500 focus:outline-none text-center font-black text-lg tracking-widest mb-2">
+            <p id="pinErrorText" class="hidden text-xs font-extrabold text-red-600 mb-3">
+                PIN salah! (PIN default: 1234)
+            </p>
+            <p class="text-[11px] font-bold text-slate-400 mb-4">PIN Default: <span class="text-slate-600 font-black">1234</span></p>
+            <div class="flex gap-2">
+                <button onclick="closeTeacherModal()" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-extrabold py-2.5 rounded-xl text-sm">
+                    Batal
+                </button>
+                <button onclick="verifyTeacherPin()" class="flex-1 btn-blook btn-green text-white font-extrabold py-2.5 rounded-xl text-sm">
+                    Buka Panel
+                </button>
+            </div>
+        </div>
+
+        <!-- PANEL REKAP GURU (TERKUNCI SEBELUM PIN BENAR) -->
+        <div id="teacherContentBox" class="hidden bg-white w-full max-w-4xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-pop">
+            <!-- Header Modal -->
+            <div class="bg-slate-900 text-white px-6 py-4 flex justify-between items-center">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">📊</span>
+                    <div>
+                        <h3 class="font-blook text-xl tracking-wide">PANEL REKAP NILAI GURU</h3>
+                        <p class="text-xs text-slate-400 font-bold">Kisi-Kisi IPA Kelas 7 (Gerak dan Gaya) - Siti Fatimah, S.Pd</p>
+                    </div>
+                </div>
+                <button onclick="closeTeacherModal()" class="bg-white/10 hover:bg-white/20 w-9 h-9 rounded-xl flex items-center justify-center text-white font-bold">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Isi Modal -->
+            <div class="p-6 overflow-y-auto flex-grow space-y-4">
+                <!-- Tombol Aksi Utama Guru -->
+                <div class="flex flex-wrap justify-between items-center gap-3 bg-emerald-50 border-2 border-emerald-200 p-4 rounded-2xl">
+                    <div>
+                        <h4 class="font-extrabold text-emerald-900 text-base">Ekspor Daftar Nilai ke Microsoft Excel</h4>
+                        <p class="text-xs font-bold text-emerald-700">Berisi Nama, Kelas, Nilai (0-100), Jumlah Benar, Skor Blooket, serta Analisis Butir Soal 1-20.</p>
+                    </div>
+                    <div class="flex flex-wrap gap-2">
+                        <button onclick="downloadExcel()" class="btn-blook btn-green text-white font-extrabold px-5 py-3 rounded-xl text-sm flex items-center gap-2">
+                            <i class="fas fa-file-excel text-lg"></i>
+                            <span>UNDUH EXCEL (.XLSX)</span>
+                        </button>
+                        <button onclick="addSampleData()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-extrabold px-3 py-3 rounded-xl text-xs" title="Isi contoh data jika belum ada siswa bermain">
+                            + Simulasi 3 Siswa
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tabel Rekap Nilai Siswa -->
+                <div class="overflow-x-auto border-2 border-slate-200 rounded-2xl">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-600 text-xs font-extrabold uppercase border-b-2 border-slate-200">
+                                <th class="p-3">No</th>
+                                <th class="p-3">Waktu</th>
+                                <th class="p-3">Nama Siswa</th>
+                                <th class="p-3">Kelas</th>
+                                <th class="p-3 text-center">Benar / 20</th>
+                                <th class="p-3 text-center">Nilai (0-100)</th>
+                                <th class="p-3 text-center">Skor Emas</th>
+                                <th class="p-3 text-center">Predikat</th>
+                            </tr>
+                        </thead>
+                        <tbody id="teacherTableBody" class="text-sm font-bold text-slate-700 divide-y divide-slate-200">
+                            <!-- Diisi oleh JS -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Tombol Hapus Data -->
+                <div class="flex justify-between items-center pt-2">
+                    <span class="text-xs text-slate-400 font-bold">*Data tersimpan otomatis di browser perangkat ini.</span>
+                    <div id="clearConfirmBox" class="flex items-center gap-2">
+                        <button onclick="askClearData()" class="text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg text-xs font-extrabold">
+                            <i class="fas fa-trash-alt mr-1"></i> Reset Semua Nilai
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="text-center text-white/90 text-xs font-bold py-2 px-4">
+        Kuis Interaktif IPA Kelas VII • Mengacu Kisi-Kisi Gerak dan Gaya (Hukum Newton)
+    </footer>
+
+    <script>
+        // =========================================================================
+        // 1. BANK 20 SOAL PILIHAN GANDA + STIMULUS GAMBAR REAL / INFOGRAFIS / TABEL
+        //    Mengacu Kisi-Kisi IPA Kelas 7 File 4 (Siti Fatimah, S.Pd)
+        // =========================================================================
+        // Kisi-kisi yang diacu:
+        // 1. Menentukan besaran-besaran yang terdapat pada benda yang sedang bergerak (C2 - Sedang)
+        // 2. Menghitung salah satu nilai besaran dari persamaan gerak (C2 - Sedang)
+        // 3. Menyimpulkan dengan tepat berdasarkan gambar kegiatan penerapan dari salah satu Hukum Newton (C2 - Sulit)
+        // 4. Mengklasifikasikan kegiatan yang bekerja berdasarkan Hukum Newton tertentu (C3 - Sedang)
+        // 5. Menghitung salah satu nilai besaran dari persamaan Hukum Newton tertentu (C2 - Mudah)
+        // 6. Menganalisis pernyataan yang tepat sesuai gambar tentang penerapan salah satu dari Hukum Newton (C4 - Sedang)
+        // 7. Menganalisis pernyataan yang tepat sesuai gambar tentang penerapan Hukum Newton (C4 - Sedang)
+        const quizQuestions = [
+            // --- INDIKATOR 1: Besaran-besaran pada benda yang sedang bergerak (Soal 1 - 3) ---
+            {
+                id: 1,
+                topic: "Besaran pada Benda Bergerak",
+                level: "C2 • Sedang",
+                stimulusHTML: `
+                    <div class="bg-white p-3 rounded-xl border border-pink-200 w-full flex flex-col items-center">
+                        <div class="text-xs font-extrabold text-pink-700 uppercase mb-1">🗺️ INFOGRAFIS LINTASAN GERAK SEPEDA ADI</div>
+                        <svg width="280" height="90" viewBox="0 0 280 90">
+                            <!-- Garis lintasan -->
+                            <line x1="35" y1="30" x2="235" y2="30" stroke="#ec4899" stroke-width="3"/>
+                            <line x1="235" y1="30" x2="235" y2="75" stroke="#ec4899" stroke-width="3"/>
+                            <!-- Titik A (Rumah) -->
+                            <circle cx="35" cy="30" r="6" fill="#0284c7"/>
+                            <text x="35" y="18" text-anchor="middle" font-size="9" font-weight="bold" fill="#0369a1">Rumah (A)</text>
+                            <!-- Titik B (Belokan) -->
+                            <circle cx="235" cy="30" r="5" fill="#64748b"/>
+                            <text x="135" y="24" text-anchor="middle" font-size="10" font-weight="bold" fill="#be185d">80 meter ke Timur ➔</text>
+                            <!-- Titik C (Sekolah) -->
+                            <circle cx="235" cy="75" r="6" fill="#16a34a"/>
+                            <text x="235" y="88" text-anchor="middle" font-size="9" font-weight="bold" fill="#15803d">Sekolah (C)</text>
+                            <text x="200" y="56" text-anchor="middle" font-size="10" font-weight="bold" fill="#be185d">60 m ⬇</text>
+                            <!-- Garis Putus-putus Perpindahan -->
+                            <line x1="35" y1="30" x2="235" y2="75" stroke="#f59e0b" stroke-width="2" stroke-dasharray="4"/>
+                            <text x="120" y="65" text-anchor="middle" font-size="9" font-weight="bold" fill="#b45309">Garis lurus = 100 m</text>
+                        </svg>
+                    </div>
+                `,
+                question: "Perhatikan infografis rute perjalanan Adi bersepeda dari Rumah (A) ke Sekolah (C) di atas! Besar JARAK tempuh dan PERPINDAHAN yang dilakukan Adi secara berturut-turut adalah ....",
+                options: [
+                    "Jarak = 100 meter dan Perpindahan = 140 meter",
+                    "Jarak = 140 meter dan Perpindahan = 100 meter",
+                    "Jarak = 80 meter dan Perpindahan = 60 meter",
+                    "Jarak = 140 meter dan Perpindahan = 140 meter"
+                ],
+                correct: 1,
+                explanation: "Jarak adalah panjang seluruh lintasan yang ditempuh = 80 m + 60 m = 140 meter. Perpindahan adalah perubahan posisi lurus dari titik awal ke titik akhir = √(80² + 60²) = 100 meter."
+            },
+            {
+                id: 2,
+                topic: "Besaran pada Benda Bergerak",
+                level: "C2 • Sedang",
+                stimulusHTML: `
+                    <div class="bg-white p-3 rounded-xl border border-pink-200 w-full">
+                        <div class="text-xs font-extrabold text-pink-700 uppercase mb-1">📋 TABEL PERBEDAAN KELAJUAN DAN KECEPATAN</div>
+                        <table class="w-full text-xs border-collapse font-bold text-left">
+                            <thead>
+                                <tr class="bg-pink-600 text-white">
+                                    <th class="p-1.5 border">Besaran Gerak</th>
+                                    <th class="p-1.5 border">Jenis Besaran</th>
+                                    <th class="p-1.5 border">Rumus Dasar</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td class="p-1.5 border text-pink-700">Kelajuan (v)</td><td class="p-1.5 border">Skalar (hanya nilai)</td><td class="p-1.5 border">Jarak tempuh / Waktu</td></tr>
+                                <tr class="bg-pink-50/50"><td class="p-1.5 border text-blue-700">Kecepatan (v⃗)</td><td class="p-1.5 border">Vektor (nilai & arah)</td><td class="p-1.5 border">Perpindahan / Waktu</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                `,
+                question: "Mengacu pada tabel infografis di atas, speedometer pada sepeda motor menampilkan angka 60 km/jam tanpa menunjukkan arah mata angin. Besaran yang ditunjukkan oleh speedometer tersebut adalah ....",
+                options: [
+                    "Kecepatan sesaat, karena merupakan besaran vektor",
+                    "Kelajuan sesaat, karena hanya menunjukkan nilai tanpa memperhatikan arah gerak",
+                    "Percepatan tetap, karena lintasannya selalu lurus",
+                    "Perpindahan total motor sejak awal berangkat"
+                ],
+                correct: 1,
+                explanation: "Speedometer mengukur besarnya kelajuan sesaat (besaran skalar) karena hanya menampilkan angka nilai laju kendaraan tanpa menyatakan arah geraknya."
+            },
+            {
+                id: 3,
+                topic: "Besaran pada Benda Bergerak",
+                level: "C2 • Sedang",
+                stimulusHTML: `
+                    <div class="bg-white p-3 rounded-xl border border-pink-200 w-full flex flex-col items-center">
+                        <div class="text-xs font-extrabold text-pink-700 uppercase mb-1">⏱️ REKAMAN TICKER TIMER & TETESAN OLI MOBIL</div>
+                        <svg width="270" height="75" viewBox="0 0 270 75">
+                            <!-- Mobil bergerak ke kanan -->
+                            <rect x="200" y="12" width="45" height="20" rx="5" fill="#ec4899"/>
+                            <circle cx="210" cy="34" r="5" fill="#1e293b"/>
+                            <circle cx="235" cy="34" r="5" fill="#1e293b"/>
+                            <text x="222" y="8" text-anchor="middle" font-size="9" font-weight="bold" fill="#be185d">Arah Gerak ➔</text>
+                            <!-- Jejak tetesan oli makin renggang ke kanan -->
+                            <circle cx="25" cy="52" r="3.5" fill="#1e293b"/>
+                            <circle cx="42" cy="52" r="3.5" fill="#1e293b"/>
+                            <circle cx="68" cy="52" r="3.5" fill="#1e293b"/>
+                            <circle cx="105" cy="52" r="3.5" fill="#1e293b"/>
+                            <circle cx="155" cy="52" r="3.5" fill="#1e293b"/>
+                            <circle cx="215" cy="52" r="3.5" fill="#1e293b"/>
+                            <text x="130" y="69" text-anchor="middle" font-size="9" font-weight="bold" fill="#475569">Jarak antar titik tetesan semakin renggang</text>
+                        </svg>
+                    </div>
+                `,
+                question: "Sebuah mobil yang bocor olinya melaju di jalan lurus meninggalkan pola tetesan oli seperti gambar di atas. Jenis gerak dan besaran percepatan yang dialami mobil tersebut adalah ....",
+                options: [
+                    "GLB (Gerak Lurus Beraturan) dengan percepatan sama dengan nol",
+                    "GLBB dipercepat dengan nilai percepatan positif (kelajuan bertambah setiap detik)",
+                    "GLBB diperlambat dengan nilai percepatan negatif (kelajuan berkurang)",
+                    "Benda diam karena jarak antar titik tidak teratur"
+                ],
+                correct: 1,
+                explanation: "Jarak antar tetesan oli yang semakin lebar/renggang ke arah gerak mobil menandakan jarak yang ditempuh tiap selang waktu makin besar, artinya mobil mengalami GLBB dipercepat (percepatan > 0)."
+            },
+
+            // --- INDIKATOR 2: Menghitung salah satu nilai besaran dari persamaan gerak (Soal 4 - 7) ---
+            {
+                id: 4,
+                topic: "Perhitungan Persamaan Gerak",
+                level: "C2 • Sedang",
+                stimulusHTML: `
+                    <div class="bg-white p-3 rounded-xl border border-pink-200 w-full flex flex-wrap items-center justify-around gap-3 text-xs sm:text-sm font-bold">
+                        <div class="bg-pink-50 border border-pink-200 px-3 py-2 rounded-xl">
+                            <span class="text-pink-700 block">Segitiga Rumus GLB:</span>
+                            <span class="text-base font-black text-slate-800">v = s / t  |  s = v × t</span>
+                        </div>
+                        <div class="text-left text-slate-700">
+                            <p>🚄 Kereta Api Cepat</p>
+                            <p>• Jarak tempuh (s) = <span class="text-pink-700">180 km</span></p>
+                            <p>• Waktu tempuh (t) = <span class="text-pink-700">2 jam</span></p>
+                        </div>
+                    </div>
+                `,
+                question: "Sebuah kereta api menempuh jarak 180 km dalam waktu 2 jam dengan kelajuan tetap. Jika dinyatakan dalam satuan Internasional (m/s), besar kelajuan kereta api tersebut adalah ....",
+                options: [
+                    "90 m/s",
+                    "50 m/s",
+                    "25 m/s",
+                    "15 m/s"
+                ],
+                correct: 2,
+                explanation: "Kelajuan v = 180 km / 2 jam = 90 km/jam. Ubah ke m/s: 90 × 1.000 m / 3.600 s = 90.000 / 3.600 = 25 m/s."
+            },
+            {
+                id: 5,
+                topic: "Perhitungan Persamaan Gerak",
+                level: "C2 • Sedang",
+                stimulusHTML: `
+                    <div class="bg-white p-3 rounded-xl border border-pink-200 w-full">
+                        <div class="text-xs font-extrabold text-pink-700 uppercase mb-1">📊 TABEL CATATAN LARI SPRINT SISWA KELAS 7</div>
+                        <table class="w-full text-xs border-collapse font-bold text-center">
+                            <thead>
+                                <tr class="bg-slate-800 text-white">
+                                    <th class="p-1.5 border">Pelari</th>
+                                    <th class="p-1.5 border">Kelajuan Rata-rata (v)</th>
+                                    <th class="p-1.5 border">Waktu Lari (t)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td class="p-1.5 border">Raka</td><td class="p-1.5 border text-pink-700">6 m/s</td><td class="p-1.5 border text-blue-700">25 detik</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                `,
+                question: "Berdasarkan tabel data latihan lari sprint di atas, jika Raka berlari dengan kelajuan konstan 6 m/s selama 25 detik, maka jarak lintasan yang berhasil ditempuh Raka adalah ....",
+                options: [
+                    "31 meter",
+                    "120 meter",
+                    "150 meter",
+                    "250 meter"
+                ],
+                correct: 2,
+                explanation: "Menggunakan persamaan gerak lurus beraturan: s = v × t = 6 m/s × 25 s = 150 meter."
+            },
+            {
+                id: 6,
+                topic: "Perhitungan Persamaan Gerak (GLBB)",
+                level: "C2 • Sedang",
+                stimulusHTML: `
+                    <div class="bg-white p-3 rounded-xl border border-pink-200 w-full flex flex-col items-center">
+                        <div class="text-xs font-extrabold text-pink-700 uppercase mb-1">📈 GRAFIK KECEPATAN TERHADAP WAKTU (v – t)</div>
+                        <svg width="260" height="105" viewBox="0 0 260 105">
+                            <line x1="40" y1="12" x2="40" y2="85" stroke="#334155" stroke-width="2"/>
+                            <line x1="40" y1="85" x2="235" y2="85" stroke="#334155" stroke-width="2"/>
+                            <text x="12" y="22" font-size="9" font-weight="bold">20 m/s</text>
+                            <text x="15" y="65" font-size="9" font-weight="bold">4 m/s</text>
+                            <text x="36" y="98" font-size="9" font-weight="bold">0</text>
+                            <text x="180" y="98" font-size="9" font-weight="bold">t = 4 sekon</text>
+                            <!-- Garis GLBB -->
+                            <line x1="40" y1="62" x2="190" y2="20" stroke="#ec4899" stroke-width="3"/>
+                            <line x1="190" y1="20" x2="190" y2="85" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3"/>
+                            <line x1="40" y1="20" x2="190" y2="20" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="3"/>
+                        </svg>
+                    </div>
+                `,
+                question: "Perhatikan grafik kecepatan terhadap waktu sebuah sepeda motor di atas! Kecepatan awal motor (v₀) = 4 m/s dan dalam waktu 4 sekon kecepatannya meningkat menjadi 20 m/s. Besar percepatan (a) motor tersebut adalah ....",
+                options: [
+                    "3 m/s²",
+                    "4 m/s²",
+                    "5 m/s²",
+                    "6 m/s²"
+                ],
+                correct: 1,
+                explanation: "Persamaan percepatan: a = (vt − v₀) / t = (20 m/s − 4 m/s) / 4 s = 16 / 4 = 4 m/s²."
+            },
+            {
+                id: 7,
+                topic: "Perhitungan Persamaan Gerak",
+                level: "C2 • Sedang",
+                stimulusHTML: `
+                    <div class="bg-white p-3 rounded-xl border border-pink-200 w-full flex items-center justify-center gap-4 text-xs sm:text-sm font-bold">
+                        <span class="text-3xl">🚌</span>
+                        <div class="text-left">
+                            <p class="text-pink-700 font-extrabold">Perjalanan Bus Antar Kota</p>
+                            <p>• Jarak Malang – Surabaya (s) = 90 km</p>
+                            <p>• Kelajuan rata-rata bus (v) = 60 km/jam</p>
+                        </div>
+                    </div>
+                `,
+                question: "Sebuah bus berangkat dari terminal pukul 07.00 WIB menempuh jarak 90 km dengan kelajuan rata-rata 60 km/jam. Waktu tempuh bus dan jam tiba di tujuan adalah ....",
+                options: [
+                    "1 jam (tiba pukul 08.00 WIB)",
+                    "1,5 jam (tiba pukul 08.30 WIB)",
+                    "2 jam (tiba pukul 09.00 WIB)",
+                    "45 menit (tiba pukul 07.45 WIB)"
+                ],
+                correct: 1,
+                explanation: "Waktu tempuh t = s / v = 90 km / 60 km/jam = 1,5 jam (1 jam 30 menit). Berangkat 07.00 + 1 jam 30 menit = tiba pukul 08.30 WIB."
+            },
+
+            // --- INDIKATOR 3: Menyimpulkan berdasarkan gambar kegiatan penerapan Hukum Newton (Soal 8 - 11) ---
+            {
+                id: 8,
+                topic: "Kesimpulan Gambar Penerapan Hukum Newton",
+                level: "C2 • Sulit",
+                stimulusHTML: `
+                    <div class="bg-white p-3 rounded-xl border border-pink-200 w-full flex flex-col items-center">
+                        <div class="text-xs font-extrabold text-pink-700 uppercase mb-1">🖼️ ILUSTRASI PERCOBAAN KERTAS & GELAS</div>
+                        <svg width="250" height="95" viewBox="0 0 250 95">
+                            <!-- Meja -->
+                            <rect x="30" y="75" width="190" height="10" fill="#94a3b8"/>
+                            <!-- Kertas ditarik cepat -->
+                            <rect x="65" y="70" width="90" height="4" fill="#facc15" stroke="#ca8a04" stroke-width="1"/>
+                            <path d="M160,72 L205,72" stroke="#dc2626" stroke-width="3"/>
+                            <polygon points="205,72 197,68 197,76" fill="#dc2626"/>
+                            <text x="195" y="64" text-anchor="middle" font-size="9" font-weight="bold" fill="#dc2626">Tarik Cepat!</text>
+                            <!-- Gelas tetap diam di atas -->
+                            <rect x="92" y="32" width="32" height="38" rx="3" fill="#e0f2fe" stroke="#0284c7" stroke-width="2"/>
+                            <text x="108" y="25" text-anchor="middle" font-size="9" font-weight="bold" fill="#0369a1">Gelas tetap diam</text>
+                        </svg>
+                    </div>
+                `,
+                question: "Perhatikan gambar percobaan di atas! Ketika selembar kertas di bawah gelas ditarik secara mendadak dengan sangat cepat, gelas kaca tetap diam berdiri di tempatnya. Kesimpulan yang paling tepat berdasarkan peristiwa pada gambar tersebut adalah ....",
+                options: [
+                    "Peristiwa tersebut membuktikan Hukum I Newton (kelembaman/inersia), yaitu benda diam cenderung mempertahankan keadaan diamnya jika resultan gaya yang bekerja nol",
+                    "Peristiwa tersebut membuktikan Hukum III Newton karena kertas memberikan gaya dorong ke atas pada gelas",
+                    "Peristiwa tersebut membuktikan Hukum II Newton karena percepatan gelas berbanding terbalik dengan massanya",
+                    "Gelas tetap diam karena gaya gesek antara kertas dan gelas sangat besar"
+                ],
+                correct: 0,
+                explanation: "Hukum I Newton menyatakan setiap benda akan mempertahankan keadaan diam atau bergerak lurus beraturan jika tidak ada gaya luar yang memengaruhinya (sifat kelembaman/inersia)."
+            },
+            {
+                id: 9,
+                topic: "Kesimpulan Gambar Penerapan Hukum Newton",
+                level: "C2 • Sulit",
+                stimulusHTML: `
+                    <div class="bg-white p-3 rounded-xl border border-pink-200 w-full flex flex-col items-center">
+                        <div class="text-xs font-extrabold text-pink-700 uppercase mb-1">🚀 ILUSTRASI PELUNCURAN ROKET KE ANGKASA</div>
+                        <svg width="240" height="100" viewBox="0 0 240 100">
+                            <!-- Badan Roket -->
+                            <polygon points="120,10 105,35 135,35" fill="#ef4444"/>
+                            <rect x="105" y="35" width="30" height="32" fill="#f8fafc" stroke="#334155" stroke-width="2"/>
+                            <!-- Panah Ke Atas (Reaksi) -->
+                            <line x1="75" y1="55" x2="75" y2="20" stroke="#16a34a" stroke-width="3"/>
+                            <polygon points="75,20 70,28 80,28" fill="#16a34a"/>
+                            <text x="42" y="40" text-anchor="middle" font-size="9" font-weight="bold" fill="#15803d">Roket terdorong</text>
+                            <text x="42" y="50" text-anchor="middle" font-size="9" font-weight="bold" fill="#15803d">ke atas</text>
+                            <!-- Semburan Gas Ke Bawah (Aksi) -->
+                            <polygon points="110,67 130,67 120,92" fill="#f97316"/>
+                            <line x1="165" y1="60" x2="165" y2="92" stroke="#dc2626" stroke-width="3"/>
+                            <polygon points="165,92 160,84 170,84" fill="#dc2626"/>
+                            <text x="202" y="75" text-anchor="middle" font-size="9" font-weight="bold" fill="#dc2626">Gas menyembur</text>
+                            <text x="202" y="85" text-anchor="middle" font-size="9" font-weight="bold" fill="#dc2626">ke bawah</text>
+                        </svg>
+                    </div>
+                `,
+                question: "Berdasarkan ilustrasi peluncuran roket pada gambar di atas, kesimpulan prinsip Hukum Newton yang bekerja agar roket dapat melesat ke atas adalah ....",
+                options: [
+                    "Hukum I Newton: roket diam karena tidak ada gaya gravitasi",
+                    "Hukum II Newton: massa bahan bakar roket selalu tetap selama terbang",
+                    "Hukum III Newton (Aksi-Reaksi): semburan gas panas ke bawah (gaya aksi) menghasilkan gaya dorong ke atas pada roket (gaya reaksi) yang sama besar dan berlawanan arah",
+                    "Hukum III Newton: gaya aksi dan gaya reaksi bekerja pada satu benda yang sama sehingga saling meniadakan"
+                ],
+                correct: 2,
+                explanation: "Sesuai Hukum III Newton (F aksi = −F reaksi), semburan gas ke bawah memberikan gaya dorong ke atas yang sama besar namun berlawanan arah."
+            },
+            {
+                id: 10,
+                topic: "Kesimpulan Gambar Penerapan Hukum Newton",
+                level: "C2 • Sulit",
+                stimulusHTML: `
+                    <div class="bg-white p-3 rounded-xl border border-pink-200 w-full flex flex-col items-center">
+                        <div class="text-xs font-extrabold text-pink-700 uppercase mb-1">🛒 PERBANDINGAN MENDORONG TROLI BELANJA</div>
+                        <svg width="270" height="90" viewBox="0 0 270 90">
+                            <!-- Troli 1: Kosong -->
+                            <rect x="35" y="35" width="45" height="28" fill="none" stroke="#0284c7" stroke-width="2.5"/>
+                            <circle cx="43" cy="68" r="5" fill="#1e293b"/><circle cx="72" cy="68" r="5" fill="#1e293b"/>
+                            <text x="57" y="52" text-anchor="middle" font-size="9" font-weight="bold" fill="#0369a1">Kosong (5 kg)</text>
+                            <text x="57" y="83" text-anchor="middle" font-size="9" font-weight="bold" fill="#15803d">Melaju Cepat ➔➔</text>
+
+                            <!-- Troli 2: Penuh -->
+                            <rect x="165" y="35" width="55" height="28" fill="#fbcfe8" stroke="#be185d" stroke-width="2.5"/>
+                            <rect x="172" y="23" width="40" height="12" fill="#f472b6"/>
+                            <circle cx="175" cy="68" r="5" fill="#1e293b"/><circle cx="210" cy="68" r="5" fill="#1e293b"/>
+                            <text x="192" y="52" text-anchor="middle" font-size="9" font-weight="bold" fill="#831843">Penuh (40 kg)</text>
+                            <text x="192" y="83" text-anchor="middle" font-size="9" font-weight="bold" fill="#dc2626">Melaju Lambat ➔</text>
+                        </svg>
+                    </div>
+                `,
+                question: "Perhatikan gambar dua troli yang didorong dengan besar gaya (F) yang sama! Troli kosong melaju jauh lebih cepat dibandingkan troli penuh belanjaan. Kesimpulan yang paling tepat sesuai gambar adalah ....",
+                options: [
+                    "Penerapan Hukum II Newton: untuk gaya yang sama, percepatan benda berbanding terbalik dengan massanya",
+                    "Penerapan Hukum I Newton: troli penuh memiliki kelembaman nol",
+                    "Penerapan Hukum III Newton: troli memberikan gaya aksi pada lantai",
+                    "Semakin besar massa benda, semakin besar percepatan yang dihasilkan"
+                ],
+                correct: 0,
+                explanation: "Sesuai Hukum II Newton (a = F / m), jika gaya dorong F sama besar, maka benda dengan massa lebih kecil (troli kosong) akan mengalami percepatan lebih besar."
+            },
+            {
+                id: 11,
+                topic: "Kesimpulan Gambar Penerapan Hukum Newton",
+                level: "C2 • Sulit",
+                stimulusHTML: `
+                    <div class="bg-white p-3 rounded-xl border border-pink-200 w-full flex flex-col items-center">
+                        <div class="text-xs font-extrabold text-pink-700 uppercase mb-1">🚣 ILUSTRASI ORANG MENDAYUNG PERAHU</div>
+                        <svg width="250" height="80" viewBox="0 0 250 80">
+                            <!-- Air -->
+                            <rect x="15" y="52" width="220" height="20" fill="#bae6fd"/>
+                            <!-- Perahu -->
+                            <polygon points="75,40 165,40 150,56 90,56" fill="#f59e0b" stroke="#92400e" stroke-width="2"/>
+                            <!-- Panah Gerak Perahu ke Kanan -->
+                            <line x1="145" y1="25" x2="205" y2="25" stroke="#16a34a" stroke-width="3"/>
+                            <polygon points="205,25 197,21 197,29" fill="#16a34a"/>
+                            <text x="175" y="17" text-anchor="middle" font-size="9" font-weight="bold" fill="#15803d">Perahu maju</text>
+                            <!-- Dayung mendorong air ke Kiri -->
+                            <line x1="115" y1="32" x2="95" y2="66" stroke="#78350f" stroke-width="3"/>
+                            <line x1="90" y1="64" x2="45" y2="64" stroke="#dc2626" stroke-width="2.5"/>
+                            <polygon points="45,64 53,60 53,68" fill="#dc2626"/>
+                            <text x="65" y="45" text-anchor="middle" font-size="9" font-weight="bold" fill="#dc2626">Air didorong ke belakang</text>
+                        </svg>
+                    </div>
+                `,
+                question: "Perhatikan gambar orang mendayung perahu di atas! Ketika dayung mendorong air ke arah belakang, perahu justru bergerak melaju ke arah depan. Kesimpulan hukum fisika yang bekerja pada kegiatan tersebut adalah ....",
+                options: [
+                    "Hukum I Newton karena air memiliki sifat lembam",
+                    "Hukum II Newton karena massa perahu lebih ringan dari air",
+                    "Hukum III Newton karena dorongan dayung ke belakang (aksi) dibalas dorongan air ke depan pada perahu (reaksi)",
+                    "Gaya gesek air menarik perahu ke arah belakang"
+                ],
+                correct: 2,
+                explanation: "Mendayung adalah penerapan Hukum III Newton: gaya aksi diberikan dayung mendorong air ke belakang, dan air memberikan gaya reaksi mendorong dayung beserta perahu ke depan."
+            },
+
+            // --- INDIKATOR 4: Mengklasifikasikan kegiatan yang bekerja berdasarkan Hukum Newton tertentu (Soal 12 - 14) ---
+            {
+                id: 12,
+                topic: "Klasifikasi Kegiatan Hukum Newton",
+                level: "C3 • Sedang",
+                stimulusHTML: `
+                    <div class="bg-white p-3 rounded-xl border border-pink-200 w-full">
+                        <div class="text-xs font-extrabold text-pink-700 uppercase mb-1">📋 DAFTAR PERISTIWA SEHARI-HARI</div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-left text-xs font-bold text-slate-700">
+                            <div class="bg-slate-50 p-2 rounded-lg border">1) Tubuh penumpang terdorong ke depan saat bus direm mendadak</div>
+                            <div class="bg-slate-50 p-2 rounded-lg border">2) Dua orang mendorong mobil mogok hingga melaju lebih cepat</div>
+                            <div class="bg-slate-50 p-2 rounded-lg border">3) Penggunaan sabuk pengaman (seatbelt) pada pengemudi mobil</div>
+                            <div class="bg-slate-50 p-2 rounded-lg border">4) Tangan terasa sakit saat memukul dinding tembok dengan keras</div>
+                        </div>
+                    </div>
+                `,
+                question: "Berdasarkan daftar peristiwa di atas, kegiatan yang bekerja berdasarkan prinsip HUKUM I NEWTON (Kelembaman) ditunjukkan oleh nomor ....",
+                options: [
+                    "1 dan 2",
+                    "1 dan 3",
+                    "2 dan 4",
+                    "3 dan 4"
+                ],
+                correct: 1,
+                explanation: "Penumpang terdorong ke depan saat bus direm mendadak (1) dan fungsi sabuk pengaman untuk menahan tubuh agar tidak terpental ke depan (3) merupakan penerapan sifat kelembaman (Hukum I Newton)."
+            },
+            {
+                id: 13,
+                topic: "Klasifikasi Kegiatan Hukum Newton",
+                level: "C3 • Sedang",
+                stimulusHTML: `
+                    <div class="bg-white p-3 rounded-xl border border-pink-200 w-full flex items-center justify-center gap-4 text-xs sm:text-sm font-bold">
+                        <span class="text-3xl">🏊‍♂️🏀🎈</span>
+                        <div class="text-left text-slate-700">
+                            <p class="text-pink-700 font-extrabold">Kategori Penerapan Hukum III Newton</p>
+                            <p>Ciri utama: Melibatkan pasangan gaya Aksi – Reaksi antara dua benda yang berbeda.</p>
+                        </div>
+                    </div>
+                `,
+                question: "Manakah kelompok aktivitas berikut yang SELURUHNYA diklasifikasikan sebagai penerapan HUKUM III NEWTON?",
+                options: [
+                    "Perenang menolakkan kaki ke dinding kolam, bola basket memantul ke atas saat dibanting ke lantai, balon melesat saat udara dilepaskan",
+                    "Buku diam di atas meja, penumpang terjungkal saat motor digas tiba-tiba, batu jatuh bebas dari atap",
+                    "Mobil balap dibuat ringan agar percepatannya besar, kuda menarik pedati bermuatan berat, kereta api melaju konstan",
+                    "Penumpang memakai sabuk pengaman, truk bermuatan penuh sulit direm, bola menggelinding di atas rumput"
+                ],
+                correct: 0,
+                explanation: "Kaki menolak dinding kolam (aksi) → tubuh terdorong maju (reaksi); bola menekan lantai → lantai memantulkan bola; udara keluar ke belakang → balon melesat ke depan. Semuanya adalah pasangan aksi-reaksi (Hukum III Newton)."
+            },
+            {
+                id: 14,
+                topic: "Klasifikasi Kegiatan Hukum Newton",
+                level: "C3 • Sedang",
+                stimulusHTML: `
+                    <div class="bg-white p-3 rounded-xl border border-pink-200 w-full">
+                        <div class="text-xs font-extrabold text-pink-700 uppercase mb-1">📊 TABEL KLASIFIKASI HUKUM NEWTON</div>
+                        <table class="w-full text-xs border-collapse font-bold text-left">
+                            <thead>
+                                <tr class="bg-pink-600 text-white">
+                                    <th class="p-1.5 border">Hukum</th>
+                                    <th class="p-1.5 border">Contoh Kegiatan / Penerapan</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td class="p-1.5 border">Hukum I Newton</td><td class="p-1.5 border">Mengibaskan ujung penggaris besi hingga bergetar</td></tr>
+                                <tr class="bg-pink-50/50"><td class="p-1.5 border text-pink-700">Hukum II Newton</td><td class="p-1.5 border text-pink-700">.... (X) ....</td></tr>
+                                <tr><td class="p-1.5 border">Hukum III Newton</td><td class="p-1.5 border">Senapan terdorong ke belakang saat menembakkan peluru</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                `,
+                question: "Contoh kegiatan yang paling tepat untuk mengisi bagian (X) sebagai penerapan HUKUM II NEWTON pada tabel di atas adalah ....",
+                options: [
+                    "Gelas tetap diam di atas taplak meja yang ditarik dengan cepat",
+                    "Sepeda motor yang dikendarai sendirian dapat berakselerasi lebih cepat dibandingkan saat berboncengan",
+                    "Burung mengepakkan sayap ke bawah agar tubuhnya terangkat terbang ke atas",
+                    "Koin di atas karton jatuh tepat masuk ke dalam gelas saat karton disentil"
+                ],
+                correct: 1,
+                explanation: "Perbedaan massa total pengendara (sendiri vs berboncengan) memengaruhi besarnya percepatan motor (a = F / m), yang merupakan penerapan langsung Hukum II Newton."
+            },
+
+            // --- INDIKATOR 5: Menghitung salah satu nilai besaran dari persamaan Hukum Newton tertentu (Soal 15 - 17) ---
+            {
+                id: 15,
+                topic: "Perhitungan Hukum II Newton",
+                level: "C2 • Mudah",
+                stimulusHTML: `
+                    <div class="bg-white p-3 rounded-xl border border-pink-200 w-full flex flex-col items-center">
+                        <div class="text-xs font-extrabold text-pink-700 uppercase mb-1">📦 SKEMA GAYA PADA BALOK (ΣF = m × a)</div>
+                        <svg width="260" height="75" viewBox="0 0 260 75">
+                            <!-- Lantai licin -->
+                            <line x1="20" y1="62" x2="240" y2="62" stroke="#475569" stroke-width="2.5"/>
+                            <!-- Balok 5 kg -->
+                            <rect x="85" y="22" width="60" height="40" rx="4" fill="#fbcfe8" stroke="#be185d" stroke-width="2.5"/>
+                            <text x="115" y="46" text-anchor="middle" font-size="11" font-weight="bold" fill="#831843">m = 5 kg</text>
+                            <!-- Gaya tarik F = 20 N ke kanan -->
+                            <line x1="145" y1="42" x2="215" y2="42" stroke="#dc2626" stroke-width="3.5"/>
+                            <polygon points="215,42 206,37 206,47" fill="#dc2626"/>
+                            <text x="180" y="34" text-anchor="middle" font-size="10" font-weight="bold" fill="#dc2626">F = 20 N</text>
+                        </svg>
+                    </div>
+                `,
+                question: "Perhatikan gambar sebuah balok bermassa 5 kg di atas lantai licin yang ditarik dengan gaya mendatar sebesar 20 Newton! Besar percepatan (a) yang dialami balok tersebut adalah ....",
+                options: [
+                    "0,25 m/s²",
+                    "4 m/s²",
+                    "15 m/s²",
+                    "100 m/s²"
+                ],
+                correct: 1,
+                explanation: "Sesuai persamaan Hukum II Newton: a = F / m = 20 N / 5 kg = 4 m/s²."
+            },
+            {
+                id: 16,
+                topic: "Perhitungan Hukum II Newton",
+                level: "C2 • Mudah",
+                stimulusHTML: `
+                    <div class="bg-white p-3 rounded-xl border border-pink-200 w-full flex flex-col items-center">
+                        <div class="text-xs font-extrabold text-pink-700 uppercase mb-1">⚖️ RESULTAN GAYA BERLAWANAN ARAH</div>
+                        <svg width="270" height="75" viewBox="0 0 270 75">
+                            <line x1="20" y1="62" x2="250" y2="62" stroke="#475569" stroke-width="2.5"/>
+                            <!-- Benda 4 kg -->
+                            <rect x="105" y="22" width="60" height="40" rx="4" fill="#bae6fd" stroke="#0284c7" stroke-width="2.5"/>
+                            <text x="135" y="46" text-anchor="middle" font-size="11" font-weight="bold" fill="#0c4a6e">m = 4 kg</text>
+                            <!-- Gaya F1 = 30 N ke kanan -->
+                            <line x1="165" y1="42" x2="235" y2="42" stroke="#16a34a" stroke-width="3"/>
+                            <polygon points="235,42 227,37 227,47" fill="#16a34a"/>
+                            <text x="200" y="34" text-anchor="middle" font-size="10" font-weight="bold" fill="#15803d">F₁ = 30 N</text>
+                            <!-- Gaya F2 = 10 N ke kiri -->
+                            <line x1="105" y1="42" x2="45" y2="42" stroke="#dc2626" stroke-width="3"/>
+                            <polygon points="45,42 53,37 53,47" fill="#dc2626"/>
+                            <text x="72" y="34" text-anchor="middle" font-size="10" font-weight="bold" fill="#dc2626">F₂ = 10 N</text>
+                        </svg>
+                    </div>
+                `,
+                question: "Sebuah peti bermassa 4 kg dikenai dua gaya mendatar berlawanan arah, yaitu F₁ = 30 N ke kanan dan F₂ = 10 N ke kiri seperti gambar di atas. Besar percepatan dan arah gerak peti tersebut adalah ....",
+                options: [
+                    "5 m/s² ke arah kanan",
+                    "10 m/s² ke arah kanan",
+                    "5 m/s² ke arah kiri",
+                    "40 m/s² ke arah kiri"
+                ],
+                correct: 0,
+                explanation: "Resultan gaya ΣF = F₁ − F₂ = 30 N − 10 N = 20 N ke arah kanan. Percepatan a = ΣF / m = 20 N / 4 kg = 5 m/s² ke kanan."
+            },
+            {
+                id: 17,
+                topic: "Perhitungan Hukum II Newton",
+                level: "C2 • Mudah",
+                stimulusHTML: `
+                    <div class="bg-white p-3 rounded-xl border border-pink-200 w-full flex items-center justify-center gap-4 text-xs sm:text-sm font-bold">
+                        <span class="text-3xl">🏎️</span>
+                        <div class="text-left">
+                            <p class="text-pink-700 font-extrabold">Data Uji Lintasan Mobil Mainan</p>
+                            <p>• Massa mobil mainan (m) = 2 kg</p>
+                            <p>• Percepatan yang dihasilkan (a) = 3,5 m/s²</p>
+                        </div>
+                    </div>
+                `,
+                question: "Sebuah mobil mainan bermassa 2 kg melaju dengan percepatan 3,5 m/s². Besar gaya dorong mesin yang bekerja pada mobil mainan tersebut adalah ....",
+                options: [
+                    "1,75 Newton",
+                    "5,5 Newton",
+                    "7 Newton",
+                    "14 Newton"
+                ],
+                correct: 2,
+                explanation: "Berdasarkan persamaan Hukum II Newton: F = m × a = 2 kg × 3,5 m/s² = 7 Newton."
+            },
+
+            // --- INDIKATOR 6 & 7: Menganalisis pernyataan yang tepat sesuai gambar tentang penerapan Hukum Newton (Soal 18 - 20) ---
+            {
+                id: 18,
+                topic: "Analisis Penerapan Hukum Newton",
+                level: "C4 • Sedang",
+                stimulusHTML: `
+                    <div class="bg-white p-3 rounded-xl border border-pink-200 w-full flex flex-col items-center">
+                        <div class="text-xs font-extrabold text-pink-700 uppercase mb-1">🖼️ ANALISIS GAYA BUKU DIAM DI ATAS MEJA</div>
+                        <svg width="230" height="95" viewBox="0 0 230 95">
+                            <!-- Meja -->
+                            <rect x="35" y="60" width="160" height="10" fill="#94a3b8"/>
+                            <rect x="50" y="70" width="10" height="20" fill="#64748b"/>
+                            <rect x="170" y="70" width="10" height="20" fill="#64748b"/>
+                            <!-- Buku -->
+                            <rect x="85" y="44" width="60" height="16" rx="2" fill="#ec4899" stroke="#831843" stroke-width="2"/>
+                            <text x="115" y="55" text-anchor="middle" font-size="9" font-weight="bold" fill="#fff">BUKU</text>
+                            <!-- Gaya Normal N ke atas -->
+                            <line x1="115" y1="44" x2="115" y2="14" stroke="#16a34a" stroke-width="2.5"/>
+                            <polygon points="115,14 111,21 119,21" fill="#16a34a"/>
+                            <text x="155" y="24" text-anchor="middle" font-size="9" font-weight="bold" fill="#15803d">Gaya Normal (N)</text>
+                            <!-- Gaya Berat w ke bawah -->
+                            <line x1="115" y1="60" x2="115" y2="88" stroke="#dc2626" stroke-width="2.5"/>
+                            <polygon points="115,88 111,81 119,81" fill="#dc2626"/>
+                            <text x="155" y="84" text-anchor="middle" font-size="9" font-weight="bold" fill="#dc2626">Gaya Berat (w)</text>
+                        </svg>
+                    </div>
+                `,
+                question: "Perhatikan gambar sebuah buku yang terletak diam di atas meja! Pada buku bekerja gaya berat (w) ke bawah dan gaya normal meja (N) ke atas yang sama besar. Analisis pernyataan yang BENAR sesuai gambar tersebut adalah ....",
+                options: [
+                    "Gaya normal (N) dan gaya berat (w) merupakan pasangan aksi-reaksi Hukum III Newton karena berlawanan arah",
+                    "Buku dalam keadaan setimbang (ΣF = 0) sesuai Hukum I Newton; N dan w BUKAN pasangan aksi-reaksi karena keduanya bekerja pada satu benda yang sama yaitu buku",
+                    "Buku akan bergerak melayang ke atas karena gaya normal lebih besar dari gaya berat",
+                    "Gaya gravitasi bumi tidak bekerja pada buku yang diam di atas meja"
+                ],
+                correct: 1,
+                explanation: "Syarat pasangan aksi-reaksi Hukum III Newton adalah bekerja pada DUA benda yang berbeda. Karena N dan w sama-sama bekerja pada satu benda (buku), keduanya adalah keseimbangan gaya (ΣF = 0) sesuai Hukum I Newton."
+            },
+            {
+                id: 19,
+                topic: "Analisis Penerapan Hukum Newton",
+                level: "C4 • Sedang",
+                stimulusHTML: `
+                    <div class="bg-white p-3 rounded-xl border border-pink-200 w-full flex flex-col items-center">
+                        <div class="text-xs font-extrabold text-pink-700 uppercase mb-1">🪢 PERMAINAN TARIK TAMBANG DUA TIM</div>
+                        <svg width="270" height="75" viewBox="0 0 270 75">
+                            <!-- Tali Tambang -->
+                            <line x1="35" y1="38" x2="235" y2="38" stroke="#b45309" stroke-width="5"/>
+                            <!-- Pita Tengah -->
+                            <rect x="132" y="28" width="6" height="22" fill="#ec4899"/>
+                            <!-- Tim A (Kiri) -->
+                            <text x="55" y="24" text-anchor="middle" font-size="10" font-weight="bold" fill="#0369a1">Tim A (450 N)</text>
+                            <line x1="85" y1="54" x2="30" y2="54" stroke="#0284c7" stroke-width="3"/>
+                            <polygon points="30,54 38,50 38,58" fill="#0284c7"/>
+                            <!-- Tim B (Kanan) -->
+                            <text x="215" y="24" text-anchor="middle" font-size="10" font-weight="bold" fill="#be185d">Tim B (520 N)</text>
+                            <line x1="185" y1="54" x2="240" y2="54" stroke="#db2777" stroke-width="3"/>
+                            <polygon points="240,54 232,50 232,58" fill="#db2777"/>
+                        </svg>
+                    </div>
+                `,
+                question: "Perhatikan ilustrasi lomba tarik tambang antara Tim A dan Tim B di atas! Tim A menarik ke kiri dengan gaya 450 N, sedangkan Tim B menarik ke kanan dengan gaya 520 N. Analisis pernyataan yang BENAR sesuai kondisi tersebut adalah ....",
+                options: [
+                    "Pita tengah tali tetap diam di tempat karena kedua tim saling menarik",
+                    "Resultan gaya sebesar 70 N ke arah kanan sehingga pita tengah tali mengalami percepatan menuju Tim B sesuai Hukum II Newton",
+                    "Resultan gaya sebesar 970 N ke arah kiri menuju Tim A",
+                    "Peristiwa ini menunjukkan berlakunya Hukum I Newton karena ΣF = 0"
+                ],
+                correct: 1,
+                explanation: "Resultan gaya ΣF = 520 N (kanan) − 450 N (kiri) = 70 N ke arah kanan. Karena ΣF ≠ 0, benda mengalami percepatan ke arah resultan gaya (menuju Tim B) sesuai Hukum II Newton."
+            },
+            {
+                id: 20,
+                topic: "Analisis Penerapan Hukum Newton",
+                level: "C4 • Sedang",
+                stimulusHTML: `
+                    <div class="bg-white p-3 rounded-xl border border-pink-200 w-full flex flex-col items-center">
+                        <div class="text-xs font-extrabold text-pink-700 uppercase mb-1">🛹 SKATEBOARDER MENDORONG DINDING</div>
+                        <svg width="250" height="85" viewBox="0 0 250 85">
+                            <!-- Dinding Kiri -->
+                            <rect x="25" y="12" width="16" height="62" fill="#64748b"/>
+                            <!-- Panah Aksi ke Dinding -->
+                            <line x1="85" y1="35" x2="45" y2="35" stroke="#dc2626" stroke-width="2.5"/>
+                            <polygon points="45,35 52,31 52,39" fill="#dc2626"/>
+                            <text x="68" y="26" text-anchor="middle" font-size="9" font-weight="bold" fill="#dc2626">F aksi</text>
+                            <!-- Skateboard & Orang -->
+                            <rect x="85" y="60" width="45" height="6" rx="3" fill="#ec4899"/>
+                            <circle cx="93" cy="70" r="4" fill="#1e293b"/><circle cx="122" cy="70" r="4" fill="#1e293b"/>
+                            <circle cx="107" cy="28" r="7" fill="#fb923c"/>
+                            <line x1="107" y1="35" x2="107" y2="58" stroke="#1e293b" stroke-width="3"/>
+                            <line x1="107" y1="42" x2="85" y2="35" stroke="#1e293b" stroke-width="2.5"/>
+                            <!-- Panah Reaksi ke Kanan -->
+                            <line x1="138" y1="45" x2="205" y2="45" stroke="#16a34a" stroke-width="3"/>
+                            <polygon points="205,45 197,41 197,49" fill="#16a34a"/>
+                            <text x="175" y="36" text-anchor="middle" font-size="9" font-weight="bold" fill="#15803d">F reaksi (meluncur)</text>
+                        </svg>
+                    </div>
+                `,
+                question: "Perhatikan gambar seorang anak di atas papan luncur (skateboard) yang mendorong dinding tembok ke kiri dengan gaya 60 N sehingga ia meluncur mundur ke kanan! Pernyataan yang BENAR berdasarkan analisis gambar tersebut adalah ....",
+                options: [
+                    "Dinding memberikan gaya reaksi sebesar 60 N ke arah kanan pada tangan anak tersebut",
+                    "Dinding tidak memberikan gaya apa pun karena dinding diam tak bergerak",
+                    "Gaya reaksi dinding lebih kecil daripada 60 N sehingga anak bergerak lambat",
+                    "Anak meluncur ke kanan akibat gaya gravitasi bumi yang menarik papan luncur"
+                ],
+                correct: 0,
+                explanation: "Sesuai Hukum III Newton (F aksi = −F reaksi), ketika tangan mendorong dinding ke kiri sebesar 60 N, dinding secara bersamaan memberikan gaya reaksi yang sama besar (60 N) ke arah berlawanan (ke kanan) sehingga anak meluncur ke kanan."
+            }
+        ];
+
+        // =========================================================================
+        // 2. DATA AVATAR BLOOK & STATE PERMAINAN
+        // =========================================================================
+        const blookAvatars = ["🦊", "🐼", "🦁", "🐸", "🐧", "🦉", "🦄", "🦖", "🐙", "🐝", "🐯", "🐨"];
+        let selectedAvatar = blookAvatars[0];
+        let soundEnabled = true;
+
+        // State Pemain Saat Ini
+        let currentPlayer = {
+            name: "",
+            className: "7A",
+            avatar: "🦊",
+            score: 0,
+            streak: 0,
+            correctCount: 0,
+            answersLog: []
+        };
+
+        let currentQIndex = 0;
+        let timerInterval = null;
+        let timeLeft = 35;
+        const TIME_PER_QUESTION = 35;
+        let isAnswering = false;
+        let chestOpenedThisTurn = false;
+
+        // Penyimpanan Rekap Nilai Siswa (LocalStorage khusus Bagian 4 - Gerak & Gaya)
+        const STORAGE_KEY = "blookquiz_ipa7_gerakgaya_sitifatimah_2026";
+        let studentRecords = [];
+
+        // =========================================================================
+        // 3. AUDIO EFEK DENGAN TONE.JS (TANPA URL EKSTERNAL)
+        // =========================================================================
+        function playTone(type) {
+            if (!soundEnabled || typeof Tone === "undefined") return;
+            try {
+                if (Tone.context.state !== 'running') {
+                    Tone.start();
+                }
+                const synth = new Tone.PolySynth(Tone.Synth).toDestination();
+                synth.volume.value = -8;
+                const now = Tone.now();
+
+                if (type === "click") {
+                    synth.triggerAttackRelease("C5", "32n", now);
+                } else if (type === "correct") {
+                    synth.triggerAttackRelease("C5", "16n", now);
+                    synth.triggerAttackRelease("E5", "16n", now + 0.08);
+                    synth.triggerAttackRelease("G5", "8n", now + 0.16);
+                } else if (type === "wrong") {
+                    synth.triggerAttackRelease("E3", "8n", now);
+                    synth.triggerAttackRelease("C3", "4n", now + 0.12);
+                } else if (type === "chest") {
+                    synth.triggerAttackRelease(["C5", "E5", "G5", "C6"], "8n", now);
+                } else if (type === "finish") {
+                    synth.triggerAttackRelease("C5", "16n", now);
+                    synth.triggerAttackRelease("E5", "16n", now + 0.1);
+                    synth.triggerAttackRelease("G5", "16n", now + 0.2);
+                    synth.triggerAttackRelease("C6", "4n", now + 0.3);
+                }
+            } catch (e) {
+                // Abaikan jika browser memblokir audio
+            }
+        }
+
+        function toggleSound() {
+            soundEnabled = !soundEnabled;
+            const icon = document.getElementById("soundIcon");
+            icon.className = soundEnabled ? "fas fa-volume-up" : "fas fa-volume-mute text-red-300";
+        }
+
+        // =========================================================================
+        // 4. INISIALISASI HALAMAN & AVATAR
+        // =========================================================================
+        window.onload = function () {
+            loadRecords();
+            renderAvatars();
+            updateBadgeCount();
+        };
+
+        function loadRecords() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                studentRecords = raw ? JSON.parse(raw) : [];
+            } catch (e) {
+                studentRecords = [];
+            }
+        }
+
+        function saveRecords() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(studentRecords));
+            } catch (e) {}
+            updateBadgeCount();
+        }
+
+        function updateBadgeCount() {
+            document.getElementById("studentCountBadge").textContent = studentRecords.length;
+        }
+
+        function renderAvatars() {
+            const grid = document.getElementById("avatarGrid");
+            grid.innerHTML = "";
+            blookAvatars.forEach((emoji) => {
+                const btn = document.createElement("button");
+                btn.type = "button";
+                const isSelected = emoji === selectedAvatar;
+                btn.className = `text-2xl sm:text-3xl p-2 rounded-xl transition transform hover:scale-110 ${
+                    isSelected
+                        ? "bg-sky-500 border-2 border-slate-900 shadow-md scale-105"
+                        : "bg-white hover:bg-sky-100 border border-sky-200"
+                }`;
+                btn.textContent = emoji;
+                btn.onclick = () => {
+                    playTone("click");
+                    selectedAvatar = emoji;
+                    renderAvatars();
+                };
+                grid.appendChild(btn);
+            });
+        }
+
+        function goHome() {
+            clearInterval(timerInterval);
+            document.getElementById("lobbyScreen").classList.remove("hidden");
+            document.getElementById("quizScreen").classList.add("hidden");
+            document.getElementById("resultScreen").classList.add("hidden");
+            document.getElementById("feedbackOverlay").classList.add("hidden");
+        }
+
+        // =========================================================================
+        // 5. ALUR PERMAINAN KUIS (BLOOKET STYLE)
+        // =========================================================================
+        function startGame() {
+            const nameVal = document.getElementById("studentNameInput").value.trim();
+            const classVal = document.getElementById("studentClassInput").value;
+            const errorBox = document.getElementById("lobbyError");
+
+            if (!nameVal) {
+                errorBox.classList.remove("hidden");
+                playTone("wrong");
+                return;
+            }
+            errorBox.classList.add("hidden");
+            playTone("click");
+
+            // Reset state pemain
+            currentPlayer = {
+                name: nameVal,
+                className: classVal,
+                avatar: selectedAvatar,
+                score: 0,
+                streak: 0,
+                correctCount: 0,
+                answersLog: []
+            };
+            currentQIndex = 0;
+
+            // Update HUD
+            document.getElementById("hudAvatar").textContent = currentPlayer.avatar;
+            document.getElementById("hudName").textContent = currentPlayer.name;
+            document.getElementById("hudClass").textContent = "Kelas " + currentPlayer.className;
+            document.getElementById("hudScore").textContent = "0";
+            document.getElementById("hudStreak").textContent = "0";
+
+            // Tampilkan layar kuis
+            document.getElementById("lobbyScreen").classList.add("hidden");
+            document.getElementById("resultScreen").classList.add("hidden");
+            document.getElementById("quizScreen").classList.remove("hidden");
+
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            isAnswering = true;
+            const q = quizQuestions[currentQIndex];
+
+            document.getElementById("qCurrent").textContent = currentQIndex + 1;
+            document.getElementById("qTopicTag").textContent = "📌 " + q.topic;
+            document.getElementById("qLevelTag").textContent = q.level;
+            document.getElementById("qText").innerText = q.question;
+
+            // Stimulus Infografis / Tabel / Gambar Real
+            const stimulusContainer = document.getElementById("qStimulusContainer");
+            const stimulusBox = document.getElementById("qStimulusBox");
+            if (q.stimulusHTML) {
+                stimulusBox.innerHTML = q.stimulusHTML;
+                stimulusContainer.classList.remove("hidden");
+            } else {
+                stimulusContainer.classList.add("hidden");
+                stimulusBox.innerHTML = "";
+            }
+
+            // Isi teks 4 pilihan
+            for (let i = 0; i < 4; i++) {
+                document.getElementById("optText" + i).textContent = q.options[i];
+            }
+
+            // Mulai Timer 35 detik
+            startTimer();
+        }
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            timeLeft = TIME_PER_QUESTION;
+            const timerBar = document.getElementById("timerBar");
+            timerBar.style.width = "100%";
+            timerBar.className = "bg-sky-200 h-full rounded-full transition-all duration-1000 ease-linear";
+
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                const pct = Math.max(0, (timeLeft / TIME_PER_QUESTION) * 100);
+                timerBar.style.width = pct + "%";
+
+                if (timeLeft <= 8) {
+                    timerBar.classList.remove("bg-sky-200");
+                    timerBar.classList.add("bg-red-600");
+                }
+
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    if (isAnswering) {
+                        handleAnswer(-1); // Waktu habis dianggap salah
+                    }
+                }
+            }, 1000);
+        }
+
+        function selectAnswer(choiceIndex) {
+            if (!isAnswering) return;
+            handleAnswer(choiceIndex);
+        }
+
+        function handleAnswer(choiceIndex) {
+            isAnswering = false;
+            clearInterval(timerInterval);
+
+            const q = quizQuestions[currentQIndex];
+            const isCorrect = choiceIndex === q.correct;
+
+            let earnedGold = 0;
+            if (isCorrect) {
+                playTone("correct");
+                currentPlayer.correctCount++;
+                currentPlayer.streak++;
+                const speedBonus = Math.round((timeLeft / TIME_PER_QUESTION) * 50);
+                const streakBonus = Math.min(currentPlayer.streak * 15, 75);
+                earnedGold = 100 + speedBonus + streakBonus;
+                currentPlayer.score += earnedGold;
+            } else {
+                playTone("wrong");
+                currentPlayer.streak = 0;
+            }
+
+            // Catat log jawaban per nomor soal (1 = Benar, 0 = Salah)
+            currentPlayer.answersLog.push({
+                no: q.id,
+                topic: q.topic,
+                isCorrect: isCorrect,
+                chosen: choiceIndex >= 0 ? ["A", "B", "C", "D"][choiceIndex] : "Habis Waktu",
+                correctLetter: ["A", "B", "C", "D"][q.correct]
+            });
+
+            // Perbarui HUD
+            document.getElementById("hudScore").textContent = currentPlayer.score;
+            document.getElementById("hudStreak").textContent = currentPlayer.streak;
+
+            // Tampilkan Overlay Feedback Blooket
+            showFeedbackModal(isCorrect, earnedGold, q);
+        }
+
+        function showFeedbackModal(isCorrect, earnedGold, q) {
+            const overlay = document.getElementById("feedbackOverlay");
+            const card = document.getElementById("feedbackCard");
+            const fbIcon = document.getElementById("fbIcon");
+            const fbTitle = document.getElementById("fbTitle");
+            const fbPoints = document.getElementById("fbPoints");
+            const fbExplanation = document.getElementById("fbExplanation");
+            const bonusChestArea = document.getElementById("bonusChestArea");
+            const chestResultText = document.getElementById("chestResultText");
+
+            chestOpenedThisTurn = false;
+            chestResultText.classList.add("hidden");
+            document.querySelectorAll(".chest-btn").forEach(btn => {
+                btn.disabled = false;
+                btn.textContent = "🧰";
+                btn.classList.remove("opacity-50");
+            });
+
+            if (isCorrect) {
+                card.style.backgroundColor = "#22a742";
+                fbIcon.textContent = currentPlayer.streak >= 3 ? "🔥🎉" : "✅";
+                fbTitle.textContent = currentPlayer.streak >= 3 ? `HEBAT! STREAK ${currentPlayer.streak}x!` : "JAWABAN BENAR!";
+                fbPoints.textContent = `+${earnedGold} Emas 🪙`;
+
+                // Munculkan Mini-Game Peti Harta Karun khas Blooket setiap kelipatan 4 jawaban benar
+                if (currentPlayer.correctCount % 4 === 0) {
+                    bonusChestArea.classList.remove("hidden");
+                } else {
+                    bonusChestArea.classList.add("hidden");
+                }
+            } else {
+                card.style.backgroundColor = "#d93025";
+                fbIcon.textContent = "❌";
+                fbTitle.textContent = "KURANG TEPAT!";
+                fbPoints.textContent = `Jawaban Benar: ${["A", "B", "C", "D"][q.correct]}. ${q.options[q.correct]}`;
+                bonusChestArea.classList.add("hidden");
+            }
+
+            fbExplanation.textContent = q.explanation;
+
+            const nextBtn = document.getElementById("nextQuestionBtn");
+            nextBtn.textContent = currentQIndex < quizQuestions.length - 1
+                ? "LANJUT SOAL BERIKUTNYA ➔"
+                : "LIHAT HASIL & NILAI AKHIR 🏆";
+
+            overlay.classList.remove("hidden");
+        }
+
+        function openChest(index) {
+            if (chestOpenedThisTurn) return;
+            chestOpenedThisTurn = true;
+            playTone("chest");
+
+            const rewards = [
+                { label: "+150 Emas Bonus!", gold: 150, icon: "💰" },
+                { label: "+250 Harta Karun!", gold: 250, icon: "👑" },
+                { label: "+100 Permata!", gold: 100, icon: "💎" }
+            ];
+            const won = rewards[Math.floor(Math.random() * rewards.length)];
+            currentPlayer.score += won.gold;
+            document.getElementById("hudScore").textContent = currentPlayer.score;
+
+            const btns = document.querySelectorAll(".chest-btn");
+            btns.forEach((btn, idx) => {
+                btn.disabled = true;
+                if (idx === index) {
+                    btn.textContent = won.icon;
+                } else {
+                    btn.classList.add("opacity-50");
+                }
+            });
+
+            const resText = document.getElementById("chestResultText");
+            resText.textContent = `Selamat! Kamu mendapatkan ${won.label}`;
+            resText.classList.remove("hidden");
+        }
+
+        function nextQuestion() {
+            playTone("click");
+            document.getElementById("feedbackOverlay").classList.add("hidden");
+            currentQIndex++;
+
+            if (currentQIndex < quizQuestions.length) {
+                loadQuestion();
+            } else {
+                finishGame();
+            }
+        }
+
+        // =========================================================================
+        // 6. SELESAI KUIS & PENYIMPANAN NILAI OTOMATIS
+        // =========================================================================
+        function finishGame() {
+            playTone("finish");
+            document.getElementById("quizScreen").classList.add("hidden");
+            document.getElementById("resultScreen").classList.remove("hidden");
+
+            const finalGrade = Math.round((currentPlayer.correctCount / quizQuestions.length) * 100);
+            const accuracy = Math.round((currentPlayer.correctCount / quizQuestions.length) * 100);
+
+            document.getElementById("resAvatar").textContent = currentPlayer.avatar;
+            document.getElementById("resName").textContent = currentPlayer.name;
+            document.getElementById("resClass").textContent = "Kelas " + currentPlayer.className;
+            document.getElementById("resFinalGrade").textContent = finalGrade;
+            document.getElementById("resCorrectCount").textContent = `${currentPlayer.correctCount}/${quizQuestions.length}`;
+            document.getElementById("resAccuracy").textContent = `Akurasi ${accuracy}%`;
+            document.getElementById("resGold").textContent = currentPlayer.score;
+
+            // Render badge nomor soal 1-20
+            const breakdown = document.getElementById("resBreakdown");
+            breakdown.innerHTML = "";
+            currentPlayer.answersLog.forEach((item) => {
+                const badge = document.createElement("div");
+                badge.className = `py-1.5 rounded-lg text-center text-xs font-black text-white ${
+                    item.isCorrect ? "bg-green-500" : "bg-red-500"
+                }`;
+                badge.title = `Soal ${item.no} (${item.topic}): ${item.isCorrect ? "Benar" : "Salah"}`;
+                badge.textContent = item.no;
+                breakdown.appendChild(badge);
+            });
+
+            // Simpan ke daftar nilai guru
+            const now = new Date();
+            const timestamp = now.toLocaleDateString("id-ID") + " " + now.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+
+            const record = {
+                timestamp: timestamp,
+                name: currentPlayer.name,
+                className: currentPlayer.className,
+                correctCount: currentPlayer.correctCount,
+                totalQuestions: quizQuestions.length,
+                finalGrade: finalGrade,
+                goldScore: currentPlayer.score,
+                perQuestion: currentPlayer.answersLog.map(a => (a.isCorrect ? 1 : 0))
+            };
+
+            studentRecords.push(record);
+            saveRecords();
+        }
+
+        // =========================================================================
+        // 7. PANEL GURU (DENGAN PIN) & UNDUH EXCEL (.XLSX) LANGSUNG
+        // =========================================================================
+        const TEACHER_PIN = "1234";
+
+        function openTeacherModal() {
+            playTone("click");
+            document.getElementById("teacherPinInput").value = "";
+            document.getElementById("pinErrorText").classList.add("hidden");
+            document.getElementById("teacherPinBox").classList.remove("hidden");
+            document.getElementById("teacherContentBox").classList.add("hidden");
+            document.getElementById("teacherModal").classList.remove("hidden");
+            setTimeout(() => document.getElementById("teacherPinInput").focus(), 100);
+        }
+
+        function verifyTeacherPin() {
+            const inputPin = document.getElementById("teacherPinInput").value.trim();
+            if (inputPin === TEACHER_PIN) {
+                playTone("correct");
+                document.getElementById("teacherPinBox").classList.add("hidden");
+                document.getElementById("teacherContentBox").classList.remove("hidden");
+                renderTeacherTable();
+            } else {
+                playTone("wrong");
+                document.getElementById("pinErrorText").classList.remove("hidden");
+            }
+        }
+
+        function closeTeacherModal() {
+            document.getElementById("teacherModal").classList.add("hidden");
+        }
+
+        function getPredikat(nilai) {
+            if (nilai >= 90) return { label: "Sangat Baik (A)", cls: "bg-emerald-100 text-emerald-800" };
+            if (nilai >= 75) return { label: "Baik (B)", cls: "bg-blue-100 text-blue-800" };
+            if (nilai >= 60) return { label: "Cukup (C)", cls: "bg-amber-100 text-amber-800" };
+            return { label: "Perlu Bimbingan (D)", cls: "bg-red-100 text-red-800" };
+        }
+
+        function renderTeacherTable() {
+            const tbody = document.getElementById("teacherTableBody");
+            tbody.innerHTML = "";
+
+            if (studentRecords.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="p-8 text-center text-slate-400">
+                            <div class="text-3xl mb-2">📭</div>
+                            Belum ada siswa yang menyelesaikan kuis.<br>
+                            <span class="text-xs">Siswa yang selesai bermain akan otomatis tercatat di tabel ini.</span>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            studentRecords.forEach((rec, idx) => {
+                const pred = getPredikat(rec.finalGrade);
+                const tr = document.createElement("tr");
+                tr.className = "hover:bg-slate-50";
+                tr.innerHTML = `
+                    <td class="p-3">${idx + 1}</td>
+                    <td class="p-3 text-xs text-slate-500">${rec.timestamp}</td>
+                    <td class="p-3 font-extrabold text-slate-800">${rec.name}</td>
+                    <td class="p-3">${rec.className}</td>
+                    <td class="p-3 text-center">${rec.correctCount} / ${rec.totalQuestions}</td>
+                    <td class="p-3 text-center font-black text-base text-sky-700">${rec.finalGrade}</td>
+                    <td class="p-3 text-center text-amber-600">🪙 ${rec.goldScore}</td>
+                    <td class="p-3 text-center">
+                        <span class="px-2.5 py-1 rounded-full text-xs font-extrabold ${pred.cls}">${pred.label}</span>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function addSampleData() {
+            playTone("click");
+            const samples = [
+                {
+                    timestamp: new Date().toLocaleDateString("id-ID") + " 11:05",
+                    name: "Aisyah Putri Rahmawati",
+                    className: "7A",
+                    correctCount: 19,
+                    totalQuestions: 20,
+                    finalGrade: 95,
+                    goldScore: 2790,
+                    perQuestion: [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,1]
+                },
+                {
+                    timestamp: new Date().toLocaleDateString("id-ID") + " 11:14",
+                    name: "Muhammad Rizky Pratama",
+                    className: "7F",
+                    correctCount: 16,
+                    totalQuestions: 20,
+                    finalGrade: 80,
+                    goldScore: 2210,
+                    perQuestion: [1,1,1,0,1,1,1,1,1,0,1,1,1,1,1,0,1,0,1,1]
+                },
+                {
+                    timestamp: new Date().toLocaleDateString("id-ID") + " 11:25",
+                    name: "Nabila Zahra Khairunnisa",
+                    className: "7G",
+                    correctCount: 18,
+                    totalQuestions: 20,
+                    finalGrade: 90,
+                    goldScore: 2610,
+                    perQuestion: [1,1,1,1,1,1,1,0,1,1,1,1,1,1,1,1,1,0,1,1]
+                }
+            ];
+            studentRecords.push(...samples);
+            saveRecords();
+            renderTeacherTable();
+        }
+
+        function askClearData() {
+            const box = document.getElementById("clearConfirmBox");
+            box.innerHTML = `
+                <span class="text-xs font-extrabold text-red-600">Yakin hapus semua?</span>
+                <button onclick="confirmClearData()" class="bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-bold">Ya, Hapus</button>
+                <button onclick="cancelClearData()" class="bg-slate-200 text-slate-700 px-3 py-1 rounded-lg text-xs font-bold">Batal</button>
+            `;
+        }
+
+        function confirmClearData() {
+            studentRecords = [];
+            saveRecords();
+            renderTeacherTable();
+            cancelClearData();
+        }
+
+        function cancelClearData() {
+            const box = document.getElementById("clearConfirmBox");
+            box.innerHTML = `
+                <button onclick="askClearData()" class="text-red-600 hover:bg-red-50 px-3 py-1.5 rounded-lg text-xs font-extrabold">
+                    <i class="fas fa-trash-alt mr-1"></i> Reset Semua Nilai
+                </button>
+            `;
+        }
+
+        // FUNGSI EKSPOR KE MICROSOFT EXCEL (.XLSX) DENGAN SHEETJS
+        function downloadExcel() {
+            playTone("chest");
+            if (studentRecords.length === 0) {
+                const tbody = document.getElementById("teacherTableBody");
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" class="p-6 text-center text-red-600 font-extrabold bg-red-50">
+                            ⚠️ Belum ada data nilai siswa untuk diunduh! Silakan mainkan kuis atau klik "+ Simulasi 3 Siswa" untuk mencoba format Excel.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            // Sheet 1: Rekap Nilai Siswa + Analisis Butir Soal 1-20
+            const sheet1Data = [
+                ["DAFTAR NILAI KUIS INTERAKTIF IPA KELAS VII (GAYA BLOOKET)"],
+                ["Disusun oleh: Siti Fatimah, S.Pd | Tahun Pelajaran 2026/2027"],
+                ["Materi: Gerak dan Gaya (Besaran Gerak, Persamaan Gerak, Penerapan & Analisis Hukum I, II, III Newton)"],
+                [],
+                [
+                    "No",
+                    "Waktu Pengerjaan",
+                    "Nama Lengkap Siswa",
+                    "Kelas",
+                    "Jumlah Benar",
+                    "Total Soal",
+                    "Nilai Akhir (0-100)",
+                    "Predikat",
+                    "Skor Emas Blooket",
+                    "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10",
+                    "S11", "S12", "S13", "S14", "S15", "S16", "S17", "S18", "S19", "S20"
+                ]
+            ];
+
+            studentRecords.forEach((rec, index) => {
+                const pred = getPredikat(rec.finalGrade).label;
+                const qCols = rec.perQuestion && rec.perQuestion.length === 20
+                    ? rec.perQuestion
+                    : Array(20).fill("-");
+
+                sheet1Data.push([
+                    index + 1,
+                    rec.timestamp,
+                    rec.name,
+                    rec.className,
+                    rec.correctCount,
+                    rec.totalQuestions,
+                    rec.finalGrade,
+                    pred,
+                    rec.goldScore,
+                    ...qCols
+                ]);
+            });
+
+            // Sheet 2: Pemetaan Kisi-Kisi 20 Soal
+            const sheet2Data = [
+                ["PEMETAAN KISI-KISI 20 SOAL IPA KELAS 7 (MATERI GERAK DAN GAYA)"],
+                ["Nomor Soal", "Indikator / Topik Kisi-Kisi", "Level Kognitif & Kesukaran", "Kunci Jawaban"],
+                ...quizQuestions.map(q => [
+                    q.id,
+                    q.topic,
+                    q.level,
+                    ["A", "B", "C", "D"][q.correct] + ". " + q.options[q.correct]
+                ])
+            ];
+
+            const wb = XLSX.utils.book_new();
+            const ws1 = XLSX.utils.aoa_to_sheet(sheet1Data);
+            const ws2 = XLSX.utils.aoa_to_sheet(sheet2Data);
+
+            ws1["!cols"] = [
+                { wch: 5 },
+                { wch: 18 },
+                { wch: 28 },
+                { wch: 8 },
+                { wch: 13 },
+                { wch: 11 },
+                { wch: 18 },
+                { wch: 20 },
+                { wch: 18 },
+                ...Array(20).fill({ wch: 4 })
+            ];
+
+            ws2["!cols"] = [
+                { wch: 12 },
+                { wch: 36 },
+                { wch: 25 },
+                { wch: 55 }
+            ];
+
+            XLSX.utils.book_append_sheet(wb, ws1, "Rekap Nilai Siswa");
+            XLSX.utils.book_append_sheet(wb, ws2, "Kisi-Kisi Soal");
+
+            const fileName = `Rekap_Nilai_IPA7_GerakGaya_Blooket_${new Date().toISOString().slice(0, 10)}.xlsx`;
+            XLSX.writeFile(wb, fileName);
+        }
+    </script>
+</body>
+</html>
